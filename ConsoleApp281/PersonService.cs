@@ -2,7 +2,7 @@
 
 public static class PersonService
 {
-	public static Person ChildMaker(Person person, Person[] tempPersons)
+	public static Person ChildMaker(Person person, Person[] tempPersons, Person[] tempChildren)
 	{
 		person = PersonMaker(person);
 
@@ -12,16 +12,30 @@ public static class PersonService
 
 		foreach (Person p in tempPersons)
 		{
+			if (p == null)
+			{
+				foreach (Person child in tempChildren)
+				{
+					if (child == null)
+					{
+						throw new ArgumentException("Parent ID not found in cache.");
+					}
+
+					if (child.Id == parentId)
+					{
+						child.Children.Add(person);
+						return person;
+					}
+				}
+			}
 			if (p.Id == parentId)
 			{
 				p.Children.Add(person);
 				return person;
 			}
 		}
-
 		throw new ArgumentException("Parent ID not found in cache.");
 	}
-
 	public static Person PersonMaker(Person person)
 	{
 		Console.Write("Enter Id: ");

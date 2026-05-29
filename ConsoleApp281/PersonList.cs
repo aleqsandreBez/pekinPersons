@@ -5,22 +5,39 @@ namespace ConsoleApp281;
 public class PersonList : List<Person>
 {
 	//TODO: Implement such logic for the similar methods like Insert, InsertRange, etc.
+	void RecursiveWriter(Person person, StreamWriter writer, int depth)
+	{
+		foreach (Person child in person.Children)
+		{
+			person = child;
+			writer.WriteLine($"{person.Id},{person.FirstName},{person.LastName},{person.DateOfBirth},{person.Gender},{person.ParentId}");
+			if (person.Children.Count > 0)
+			{
+				RecursiveWriter(person, writer, depth + 1);
+			}
+		}
+	}
+
 	public new void Add(Person person) 
 	{ 
 		if (person == null) 
-		{ 
-			throw new ArgumentException("Person cannot be null."); 
+		{
+			return;
 		} 
+
 		foreach (var p in this) 
 		{ 
 			if (p.Id == person.Id) 
 			{ 
 				throw new ArgumentException($"A person with Id {person.Id} already exists."); 
 			} 
+
 			if (!p.FirstName.All(char.IsLetter) || !p.LastName.All(char.IsLetter)) 
-			{ throw new Exception("Invalid info."); 
-			} 
-		} base.Add(person); 
+			{ 
+				throw new Exception("Invalid info."); 
+			}
+		} 
+		base.Add(person); 
 	}
 
 	/// <summary>
@@ -32,6 +49,7 @@ public class PersonList : List<Person>
 	public void Save(Stream stream)
     {
 		using StreamWriter writer = new StreamWriter(stream);
+		int loopCounter = 0;
 
 		foreach (Person person in this)
 		{
@@ -40,13 +58,10 @@ public class PersonList : List<Person>
                 break;
             }
 			writer.WriteLine($"{person.Id},{person.FirstName},{person.LastName},{person.DateOfBirth},{person.Gender},{person.ParentId}");
-			if (person.Children.Count > 0)
-			{
-				foreach (Person child in person.Children)
-				{
-					writer.WriteLine($"{child.Id},{child.FirstName},{child.LastName},{child.DateOfBirth},{child.Gender},{child.ParentId}");
-				}
-			}
+			            if (person.Children.Count > 0)
+            {
+                RecursiveWriter(person, writer, 0);
+            }
 		}
 	}
 
@@ -60,13 +75,12 @@ public class PersonList : List<Person>
     {
         this.Clear();
 		using StreamReader reader = new StreamReader(stream);
-		Person[] tempPersonsLoad = new Person[1];
+		List<Person> tempPersonsLoad = new List<Person>();
 		string line;
 
 		while ((line = reader.ReadLine()) != null)
 		{
 			string[] parts = line.Split(',');
-			Person[] tempPersons = new Person[1];
 
 			Person person = new Person
 			{
@@ -77,9 +91,10 @@ public class PersonList : List<Person>
 				Gender = Enum.Parse<Gender>(parts[4]),
                 ParentId = int.Parse(parts[5]),
 			};
-            if (int.Parse(parts[5]) > 0)
+			tempPersonsLoad.Add(person);
+            if (person.ParentId > 0)
             {
-				foreach (Person p in this)
+				foreach (Person p in tempPersonsLoad)
 				{
 					if (p.Id == person.ParentId)
 					{

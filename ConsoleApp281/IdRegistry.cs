@@ -1,4 +1,6 @@
-﻿public static class IdRegistry
+﻿namespace ConsoleApp281;
+
+public static class IdRegistry
 {
 	private static HashSet<int> ids = new();
 
