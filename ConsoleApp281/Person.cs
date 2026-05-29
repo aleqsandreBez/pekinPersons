@@ -1,46 +1,87 @@
-﻿namespace ConsoleApp281;
+﻿using static System.Net.Mime.MediaTypeNames;
+
+namespace ConsoleApp281;
 
 public class Person
 {
-    public int Id { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public DateTime DateOfBirth { get; set; }
-    public Gender Gender { get; set; }
+	private int _id;
+	private string _firstName;
+	private string _lastName;
+	private DateTime _dateOfBirth;
+	private Gender _gender;
 
-    //public List<Person> Children { get; set; } = new List<Person>();
+	public int ParentId { get; set; }
+	public int Id
+	{
+		get => _id;
+		set
+		{
+			if (value <= 0)
+			{
+				throw new ArgumentException("Id must be positive.");
+			}
+			_id = value;
+		}
+	}
+
+	public string FirstName
+	{
+		get => _firstName;
+		set
+		{
+			if (string.IsNullOrWhiteSpace(value) || !value.All(char.IsLetter))
+			{
+				throw new ArgumentException("Invalid first name.");
+			}
+			_firstName = value;
+		}
+	}
+
+	public string LastName
+	{
+		get => _lastName;
+		set
+		{
+			if (string.IsNullOrWhiteSpace(value) || !value.All(char.IsLetter))
+			{
+				throw new ArgumentException("Invalid last name.");
+			}
+			_lastName = value;
+		}
+	}
+
+	public DateTime DateOfBirth
+	{
+		get => _dateOfBirth;
+		set
+		{
+			if (value > DateTime.Now)
+			{
+				throw new ArgumentException("Date of birth cannot be in the future.");
+			}
+			_dateOfBirth = value;
+		}
+	}
+
+	public Gender Gender
+	{
+		get => _gender;
+		set
+		{
+			if (!Enum.IsDefined(typeof(Gender), value))
+			{
+				throw new ArgumentException("Invalid gender.");
+			}
+			_gender = value;
+		}
+	}
+
+	public List<Person> Children { get; set; } = new();
 
     public override string ToString()
     {
         return $"{FirstName} {LastName} (Id: {Id}, DOB: {DateOfBirth.ToShortDateString()}, Gender: {Gender})";
     }
-
-	public Person PersonMaker(Person person)
-	{
-		Console.Write("Enter Id: ");
-		person.Id = int.Parse(Console.ReadLine());
-
-		Console.Write("Enter first name: ");
-		person.FirstName = Console.ReadLine();
-
-		Console.Write("Enter last name: ");
-		person.LastName = Console.ReadLine();
-
-		Console.Write("Enter birth year: ");
-		int year = int.Parse(Console.ReadLine());
-
-		Console.Write("Enter birth month: ");
-		int month = int.Parse(Console.ReadLine());
-
-		Console.Write("Enter birth day: ");
-		int day = int.Parse(Console.ReadLine());
-
-		person.DateOfBirth = new DateTime(year, month, day);
-
-		Console.Write("Enter gender (Male/Female): ");
-		person.Gender = Enum.Parse<Gender>(Console.ReadLine());
-		return person;
-	}
 }
 
 public enum Gender
